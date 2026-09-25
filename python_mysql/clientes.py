@@ -17,6 +17,7 @@ import mysql.connector
 from connection import *
 # Importa todo lo público de connection.py, incluida la clase CConnection,
 # que usamos abajo para pedir conexiones a la base de datos.
+#
 
 class CClientes:
     # Clase con las operaciones CRUD de la tabla "usuarios".
