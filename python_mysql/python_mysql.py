@@ -223,7 +223,7 @@ def formulario():
 
         #Elementos del gruopBox de la izquierda
         # Label = texto fijo ("Id"); width=13 le da un ancho uniforme a los rótulos.
-        # ✅ BUG #4 CORREGIDO: antes se escribió font=("arial,12") —con la coma
+        # UG #4 CORREGIDO: antes se escribió font=("arial,12") —con la coma
         #    DENTRO del texto; eso era un texto y no una tupla, así que Tkinter
         #    ignoraba la fuente. La forma correcta es ("arial", 12) en dos valores.
         labelId = Label(groupBox, text="Id", width=13,font=("arial", 12)).grid(row=0,column=0)

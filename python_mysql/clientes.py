@@ -7,7 +7,7 @@
 #   U = Update (actualizar) -> modificarClientes()
 #   D = Delete (eliminar)   -> eliminarClientes()
 
-#    ✅ BUG #3 CORREGIDO:
+#    BUG #3 CORREGIDO:
 #    Antes este archivo usaba mysql.connector sin importarlo y "funcionaba por
 #    casualidad" porque connection.py lo importaba antes (y "from connection
 #    import *" arrastraba la variable). Ahora cada archivo declara sus propias
@@ -79,8 +79,8 @@ class CClientes:
             #    Pasar los valores aparte (NO pegarlos al texto SQL) es lo
             #    correcto: evita la inyección SQL y los errores de comillas.
             #
-            #    ❌ peligroso:  f"insert ... values (null, '{nombres}', ...)"
-            #    ✅ correcto:   cursor.execute(sql, valores)
+            #    peligroso:  f"insert ... values (null, '{nombres}', ...)"
+            #    correcto:   cursor.execute(sql, valores)
             cursor.execute(sql, valores)
             # 4) En INSERT/UPDATE/DELETE SÍ hace falta commit() para guardar
             #    los cambios de forma definitiva en la base de datos.

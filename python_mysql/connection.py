@@ -40,7 +40,7 @@ class CConnection:
             # 2) Si algo falla (BD caída, contraseña mala, puerto equivocado...),
             #    capturamos el error de MySQL y lo mostramos en consola.
 
-            #    ✅ BUG #2 CORREGIDO:
+            #    BUG #2 CORREGIDO:
             #    Antes esta línea era "return conexion", pero si la conexión
             #    FALLÓ la variable "conexion" nunca se creó y Python lanzaba un
             #    segundo error (UnboundLocalError). Ahora devolvemos "None":
