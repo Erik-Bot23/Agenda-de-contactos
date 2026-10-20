@@ -27,14 +27,16 @@ class FormularioClientes:
     win = None
     global groupBox
     groupBox = None
-    global texBoxId
-    texBoxId = None
-    global texBoxNombres
+    global textBoxId
+    textBoxId = None
+    global textBoxNombres
     textBoxNombre = None
-    global texBoxApellidos
+    global textBoxApellidos
     textBoxApellidos = None
     global combo
     combo = None
+    global textBoxTelefono
+    textBoxTelefono = None
     global tree
     tree = None
     # "None" significa "todavía no existe". Estas variables se van a llenar
@@ -60,7 +62,7 @@ def actualizarTreeview():
         #    row es cada tupla como (id, nombres, apellidos, sexo).
         #    tree.insert("", "end", values=row) agrega una fila al final.
         #    Nota: se llama a mostrarClientes() dos veces; basta guardarlo en
-        #    "datos" e iterar sobre "datos" (ver archivo docs/ para la corrección).
+        #    "datos" e iterar sobre "datos".
         for row in CClientes.mostrarClientes():
             tree.insert("", "end", values=row)
 
@@ -72,22 +74,23 @@ def guardarRegistros():
     # Se ejecuta al presionar el botón "Guardar".
     # Lee los Entry (cuadros de texto) y el Combobox (sexo), los envía a
     # CClientes.ingresarClientes() y refresca la tabla.
-    global texBoxNombres, texBoxApellidos, combo, groupBox
+    global textBoxNombres, textBoxApellidos, combo, textBoxTelefono, groupBox
 
     try:
         #verificar si los widgets estan inicializados
         # Si aún no existen (formulario no creado), salimos antes de fallar.
-        if texBoxNombres is None or texBoxApellidos is None or combo is None:
+        if textBoxNombres is None or textBoxApellidos is None or combo is None or textBoxTelefono is None:
             print("Los widgets no estan inicializados")
             return
 
         # 1) Recuperar lo que escribió el usuario en cada campo.
         #    .get() devuelve el texto actual de un Entry / Combobox.
-        nombres = texBoxNombres.get()
-        apellidos = texBoxApellidos.get()
+        nombres = textBoxNombres.get()
+        apellidos = textBoxApellidos.get()
         sexo = combo.get()
+        tel = textBoxTelefono.get()
         # 2) Llamar a la capa CRUD pasándole los datos (INSERT INTO usuarios).
-        CClientes.ingresarClientes(nombres, apellidos, sexo)
+        CClientes.ingresarClientes(nombres, apellidos, sexo, tel)
         # 3) Ventanita de confirmación ("Información" es el título).
         messagebox.showinfo("Información", "Los datos se ingresaron correctamente")
 
@@ -96,8 +99,9 @@ def guardarRegistros():
 
         #Limpiamos las textBox
         # delete(0, END) borra desde el inicio hasta el final del cuadro.
-        texBoxNombres.delete(0, END)
-        texBoxApellidos.delete(0, END)
+        textBoxNombres.delete(0, END)
+        textBoxApellidos.delete(0, END)
+        textBoxTelefono.delete(0, END)
 
     except ValueError as error:
         print("Error al guardar los datos: {}".format(error))
@@ -106,30 +110,32 @@ def modificarRegistros():
     # Se ejecuta al presionar el botón "Actualizar".
     # Igual que guardar, pero llama a modificarClientes() (UPDATE) y usa el id
     # que el usuario tiene puesto en el cuadro "Id".
-    global texBoxId, texBoxNombres, texBoxApellidos, combo, groupBox
+    global textBoxId, textBoxNombres, textBoxApellidos, combo, textBoxTelefono, groupBox
 
     try:
         #verificar si los widgets estan inicializados
-        if texBoxId is None or texBoxNombres is None or texBoxApellidos is None or combo is None:
+        if textBoxId is None or textBoxNombres is None or textBoxApellidos is None or combo is None or textBoxTelefono is None:
             print("Los widgets no estan inicializados")
             return
 
         # 1) El id identifica QUÉ registro vamos a modificar.
-        idUsuario = texBoxId.get()
-        nombres = texBoxNombres.get()
-        apellidos = texBoxApellidos.get()
+        idUsuario = textBoxId.get()
+        nombres = textBoxNombres.get()
+        apellidos = textBoxApellidos.get()
         sexo = combo.get()
+        tel = textBoxTelefono.get()
         # 2) UPDATE usuarios SET ... WHERE id = idUsuario
-        CClientes.modificarClientes(idUsuario, nombres, apellidos, sexo)
+        CClientes.modificarClientes(idUsuario, nombres, apellidos, sexo, tel)
         messagebox.showinfo("Información", "Los datos se actualizaron correctamente")
 
         #Llamamos a la función de actualizar treeview
         actualizarTreeview()
 
         #Limpiamos las textBox
-        texBoxId.delete(0, END)
-        texBoxNombres.delete(0, END)
-        texBoxApellidos.delete(0, END)
+        textBoxId.delete(0, END)
+        textBoxNombres.delete(0, END)
+        textBoxApellidos.delete(0, END)
+        textBoxTelefono.delete(0, END)
 
     except ValueError as error:
         print("Error al modificar los datos: {}".format(error))
@@ -137,16 +143,16 @@ def modificarRegistros():
 def eliminarRegistros():
     # Se ejecuta al presionar el botón "Eliminar".
     # Solo necesita el id; borra el registro de la BD (DELETE) y refresca.
-    global texBoxId, texBoxNombres, texBoxApellidos
+    global textBoxId, textBoxNombres, textBoxApellidos, texBoxTelefono
 
     try:
         #verificar si los widgets estan inicializados
-        if texBoxId is None:
+        if textBoxId is None:
             print("Los widgets no estan inicializados")
             return
 
         # 1) Leer el id que el usuario dejó en el cuadro.
-        idUsuario = texBoxId.get()
+        idUsuario = textBoxId.get()
 
         # 2) DELETE FROM usuarios WHERE id = idUsuario
         CClientes.eliminarClientes(idUsuario)
@@ -156,9 +162,10 @@ def eliminarRegistros():
         actualizarTreeview()
 
         #Limpiamos las textBox
-        texBoxId.delete(0, END)
-        texBoxNombres.delete(0, END)
-        texBoxApellidos.delete(0, END)
+        textBoxId.delete(0, END)
+        textBoxNombres.delete(0, END)
+        textBoxApellidos.delete(0, END)
+        textBoxTelefono.delete(0, END)
 
     except ValueError as error:
         print("Error al eliminar los datos: {}".format(error))
@@ -180,14 +187,16 @@ def seleccionarRegistro(event):
 
             # 4) Copiar cada valor dentro de su Entry correspondiente.
             #    Primero se borra lo anterior y luego se inserta el nuevo.
-            texBoxId.delete(0, END)
-            texBoxId.insert(0, values[0])
-            texBoxNombres.delete(0, END)
-            texBoxNombres.insert(0, values[1])
-            texBoxApellidos.delete(0, END)
-            texBoxApellidos.insert(0, values[2])
+            textBoxId.delete(0, END)
+            textBoxId.insert(0, values[0])
+            textBoxNombres.delete(0, END)
+            textBoxNombres.insert(0, values[1])
+            textBoxApellidos.delete(0, END)
+            textBoxApellidos.insert(0, values[2])
             # 5) En el Combobox, .set() cambia el valor mostrado.
             combo.set(values[3])
+            textBoxTelefono.delete(0, END)
+            textBoxTelefono.insert(0, [4])
 
 
     except ValueError as error:
@@ -199,10 +208,11 @@ def formulario():
     # Se declaran "global" para que las demás funciones puedan usarlos.
     global win
     global groupBox
-    global texBoxId
-    global texBoxNombres
-    global texBoxApellidos
+    global textBoxId
+    global textBoxNombres
+    global textBoxApellidos
     global combo
+    global textBoxTelefono
     global tree
 
     try:
@@ -223,21 +233,21 @@ def formulario():
 
         #Elementos del gruopBox de la izquierda
         # Label = texto fijo ("Id"); width=13 le da un ancho uniforme a los rótulos.
-        # UG #4 CORREGIDO: antes se escribió font=("arial,12") —con la coma
+        # UG #4 CORREGIDO: antes se escribió font=("arial,12") con la coma
         #    DENTRO del texto; eso era un texto y no una tupla, así que Tkinter
         #    ignoraba la fuente. La forma correcta es ("arial", 12) en dos valores.
         labelId = Label(groupBox, text="Id", width=13,font=("arial", 12)).grid(row=0,column=0)
         # Entry = cuadro de texto de una sola línea. Aquí se guardará el id.
-        texBoxId = Entry(groupBox)
-        texBoxId.grid(row=0, column=1)
+        textBoxId = Entry(groupBox)
+        textBoxId.grid(row=0, column=1)
 
         labelNombres = Label(groupBox, text="Nombres", width=13,font=("arial", 12)).grid(row=1,column=0)
-        texBoxNombres = Entry(groupBox)
-        texBoxNombres.grid(row=1, column=1)
+        textBoxNombres = Entry(groupBox)
+        textBoxNombres.grid(row=1, column=1)
 
         labelApellidos = Label(groupBox, text="Apellidos", width=13,font=("arial", 12)).grid(row=2,column=0)
-        texBoxApellidos = Entry(groupBox)
-        texBoxApellidos.grid(row=2, column=1)
+        textBoxApellidos = Entry(groupBox)
+        textBoxApellidos.grid(row=2, column=1)
 
         # Combobox = lista desplegable. Aquí se elige el sexo.
         labelSexo = Label(groupBox, text="Sexo", width=13,font=("arial", 12)).grid(row=3,column=0)
@@ -249,11 +259,15 @@ def formulario():
         # Valor por defecto del combobox.
         seleccionSexo.set("Masculino")
 
+        labelTelefono = Label(groupBox, text="Telefono", width=13, font=("arial", 12)).grid(row=4, column=0)
+        textBoxTelefono = Entry(groupBox)
+        textBoxTelefono.grid(row=4, column=1)
+
         # Botones de acción. "command" indica QUÉ función se ejecuta al pulsarlo
         # (sin paréntesis: se pasa la referencia a la función, no su resultado).
-        Button(groupBox,text="Guardar", width=10, command=guardarRegistros).grid(row=4,column=0)
-        Button(groupBox,text="Eliminar", width=10, command=eliminarRegistros).grid(row=4,column=1)
-        Button(groupBox,text="Actualizar", width=10, command=modificarRegistros).grid(row=4,column=2)
+        Button(groupBox,text="Guardar", width=10, command=guardarRegistros).grid(row=5,column=0)
+        Button(groupBox,text="Eliminar", width=10, command=eliminarRegistros).grid(row=5,column=1)
+        Button(groupBox,text="Actualizar", width=10, command=modificarRegistros).grid(row=5,column=2)
 
         # 3) ZONA DERECHA: la tabla que lista los registros de la base de datos.
         #    Reutilizamos la variable groupBox para crear un segundo contenedor.
@@ -264,7 +278,7 @@ def formulario():
         #    columns = los títulos de cada columna.
         #    show="headings" muestra solo los encabezados (sin la 1ª col. oculta).
         #    height=5 = número de filas visibles.
-        tree = ttk.Treeview(groupBox,columns=("Id","Nombres","Apellifos","Sexo"),show="headings",height=5)
+        tree = ttk.Treeview(groupBox,columns=("Id","Nombres","Apellifos","Sexo","Telefono"),show="headings",height=5)
         #    Configurar cada columna: anchor=CENTER centra el texto.
         #    "# 1" se refiere a la primera columna, "# 2" a la segunda, etc.
         tree.column("# 1", anchor=CENTER)
@@ -275,6 +289,8 @@ def formulario():
         tree.heading("# 3", text="Apellidos")
         tree.column("# 4", anchor=CENTER)
         tree.heading("# 4", text="Sexo")
+        tree.column("# 5", anchor=CENTER)
+        tree.heading("# 5", text="Telefono")
 
         # 5) Llenar la tabla con los datos que ya existen en la BD.
         for row in CClientes.mostrarClientes():

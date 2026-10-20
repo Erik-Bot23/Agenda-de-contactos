@@ -24,6 +24,7 @@ class CClientes:
 
     def mostrarClientes():
         # R = READ. Devuelve todos los registros de la tabla "usuarios".
+        cone = None
         try:
             # 1) Pedimos una conexión nueva a la BD.
             cone = CConnection.connectionBaseDeDatos()
@@ -42,12 +43,7 @@ class CClientes:
             # 5) fetchall() trae TODAS las filas como una lista de tuplas.
             #    Ejemplo: [(1, 'Erik', 'Jarquin', 'Masculino'), (2, ... )]
             miResultado = cursor.fetchall()
-            # 6) "commit" confirma los cambios. En un SELECT no cambia nada,
-            #    así que esta línea es redundante aquí (sobra, pero no daña).
-            cone.commit()
-            # 7) Cerramos la conexión para no dejar recursos abiertos.
-            cone.close()
-            # 8) Devolvemos la lista de registros a quien la pidió.
+            # 6) Devolvemos la lista de registros a quien la pidió.
             return miResultado
 
         except mysql.connector.Error as error:
@@ -55,8 +51,12 @@ class CClientes:
             # y devolvemos una lista vacía para que la interfaz no se rompa.
             print("Error al mostrar los datos {}".format(error))
             return []
+        finally:
+            if cone is not None:
+                # 7) Cerramos la conexión para no dejar recursos abiertos.
+                cone.close()
 
-    def ingresarClientes(nombres, apellidos, sexo):
+    def ingresarClientes(nombres, apellidos, sexo, tel):
         # C = CREATE. Inserta un nuevo cliente en la tabla "usuarios".
         # Recibe 3 parámetros: los datos que escribió el usuario en el formulario.
         try:
@@ -69,12 +69,12 @@ class CClientes:
             cursor = cone.cursor()
             # 1) Sentencia SQL con marcadores de posición "%s".
             #    El "null" ocupa el auto_increment de la columna "id".
-            sql = "insert into usuarios values (null,%s,%s,%s);"
+            sql = "insert into usuarios values (null,%s,%s,%s,%s);"
             # 2) Los valores que sustituirán a cada "%s", en el mismo orden.
             #    La variable valores tiene que ser una tupla.
             #    Como minima expresion es: (valor,) la coma hace que sea una tupla.
             #    Las tuplas son listas inmutables, eso quiere decir que no se puede modificar.
-            valores = (nombres, apellidos, sexo)
+            valores = (nombres, apellidos, sexo, tel)
             # 3) Ejecutamos la sentencia con sus valores.
             #    Pasar los valores aparte (NO pegarlos al texto SQL) es lo
             #    correcto: evita la inyección SQL y los errores de comillas.
@@ -92,7 +92,7 @@ class CClientes:
         except mysql.connector.Error as error:
             print("Error al ingresar en la base de datos {}".format(error))
 
-    def modificarClientes(id, nombres, apellidos, sexo):
+    def modificarClientes(id, nombres, apellidos, sexo, tel):
         # U = UPDATE. Actualiza los datos de un cliente ya existente.
         # Identifica el registro por "id" y reemplaza nombres, apellidos y sexo.
         try:
@@ -104,10 +104,10 @@ class CClientes:
             cursor = cone.cursor()
             # 1) UPDATE ... SET ... WHERE ...  -> cambia SOLO la fila cuyo id coincida.
             #    Se usa "usuarios.id" para despejar a qué tabla/columna nos referimos.
-            sql = "update usuarios set usuarios.nombres = %s, usuarios.apellidos = %s, usuarios.sexo = %s where usuarios.id = %s;"
+            sql = "update usuarios set usuarios.nombres = %s, usuarios.apellidos = %s, usuarios.sexo = %s, usuarios.telefono = %s where usuarios.id = %s;"
             # 2) El orden de la tupla debe coincidir con el orden de los %s:
             #    nombres, apellidos, sexo ... y al final el id (el filtro).
-            valores = (nombres, apellidos, sexo, id)
+            valores = (nombres, apellidos, sexo, tel, id)
             cursor.execute(sql, valores)
             cone.commit()
             print(cursor.rowcount,"Registro actualizado")

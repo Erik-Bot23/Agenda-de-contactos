@@ -4,8 +4,10 @@
 # Es la "capa de acceso a datos" del proyecto: clientes.py la usa para
 # ejecutar sus consultas y python_mysql.py la usa para levantar la interfaz.
 # -----------------------------------------------------------------------------
-
+import os
 import mysql.connector
+from dotenv import load_dotenv #Busca el archivo .env (desde donde ejecutes el programa)
+                                #y carga cada CLAVE=VALOR como variable de entorno en os.environ
 # Importamos la librería "mysql-connector-python".
 # Esta librería es el puente entre Python y MySQL: permite abrir conexiones,
 # crear cursores y ejecutar sentencias SQL desde código Python.
@@ -27,11 +29,14 @@ class CConnection:
             # 1) Intentar conectarnos a MySQL con los datos de acceso.
             #    Parámetros de mysql.connector.connect:
             #      user      -> usuario de MySQL (normalmente "root")
-            #      password  -> contraseña del usuario
+            #      password  -> contraseña del usuario erik123
             #      host      -> "127.0.0.1" = localhost (la máquina local)
             #      database  -> nombre de la BD a la que entramos ("clientesdb")
             #      port      -> puerto por defecto de MySQL (3306)
-            conexion = mysql.connector.connect(user="root", password="erik123",host="127.0.0.1",database="clientesdb",port="3306")
+
+            #os.environ.get("CLAVE", "valor por defecto") lee la variable
+            #Si no existe, usa el valor por defecto en lugar de fallar
+            conexion = mysql.connector.connect(user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASSWORD", ""), host=os.environ.get("DB_HOST", "127.0.0.1"), database=os.environ.get("DB_NAME", "clientesdb"), port=os.environ.get("DB_PORT", "3306"))
             print("Conexión correcta")
             return conexion
             # Si todo salió bien, devolvemos el objeto "conexion" a quien lo pidió.
