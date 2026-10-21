@@ -292,8 +292,10 @@ def formulario():
         tree.column("# 5", anchor=CENTER)
         tree.heading("# 5", text="Telefono")
 
+        tree.delete(*tree.get_children()) #Vaciar la tabla
+        datos = CClientes.modificarClientes() #Una sola conexión
         # 5) Llenar la tabla con los datos que ya existen en la BD.
-        for row in CClientes.mostrarClientes():
+        for row in datos: #Iterar sobre lo ya guardado
             tree.insert("", "end", values=row)
 
         # 6) Conectar el evento de "clic en una fila" con la función
@@ -309,7 +311,7 @@ def formulario():
         win.mainloop()
 
     except ValueError as error:
-        print("El error al mostrar la interfaz, error: {}".format(error))
+        print("Error al mostrar la interfaz, error: {}".format(error))
 
 if __name__ == "__main__":
     # MEJORA APLICADA: este bloque PROTEGE la entrada principal.

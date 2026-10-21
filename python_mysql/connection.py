@@ -37,7 +37,6 @@ class CConnection:
             #os.environ.get("CLAVE", "valor por defecto") lee la variable
             #Si no existe, usa el valor por defecto en lugar de fallar
             conexion = mysql.connector.connect(user=os.environ.get("DB_USER", "root"), password=os.environ.get("DB_PASSWORD", ""), host=os.environ.get("DB_HOST", "127.0.0.1"), database=os.environ.get("DB_NAME", "clientesdb"), port=os.environ.get("DB_PORT", "3306"))
-            print("Conexión correcta")
             return conexion
             # Si todo salió bien, devolvemos el objeto "conexion" a quien lo pidió.
 
