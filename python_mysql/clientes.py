@@ -58,7 +58,8 @@ class CClientes:
 
     def ingresarClientes(nombres, apellidos, sexo, tel):
         # C = CREATE. Inserta un nuevo cliente en la tabla "usuarios".
-        # Recibe 3 parámetros: los datos que escribió el usuario en el formulario.
+        # Recibe 4 parámetros: los datos que escribió el usuario en el formulario.
+        cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
             # PROTECCIÓN: mismas explicación que en mostrarClientes().
@@ -69,7 +70,7 @@ class CClientes:
             cursor = cone.cursor()
             # 1) Sentencia SQL con marcadores de posición "%s".
             #    El "null" ocupa el auto_increment de la columna "id".
-            sql = "insert into usuarios values (null,%s,%s,%s,%s);"
+            sql = "insert into usuarios (nombres, apellidos, sexo, telefono) values (%s,%s,%s,%s);"
             # 2) Los valores que sustituirán a cada "%s", en el mismo orden.
             #    La variable valores tiene que ser una tupla.
             #    Como minima expresion es: (valor,) la coma hace que sea una tupla.
@@ -87,14 +88,17 @@ class CClientes:
             cone.commit()
             # 5) rowcount dice cuántas filas se vieron afectadas (aquí: 1).
             print(cursor.rowcount,"Registro ingresado")
-            cone.close()
 
         except mysql.connector.Error as error:
             print("Error al ingresar en la base de datos {}".format(error))
+        finally:
+            if cone is not None:
+                cone.close()
 
     def modificarClientes(id, nombres, apellidos, sexo, tel):
         # U = UPDATE. Actualiza los datos de un cliente ya existente.
         # Identifica el registro por "id" y reemplaza nombres, apellidos y sexo.
+        cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
             # PROTECCIÓN: mismas explicación que en mostrarClientes().
@@ -111,13 +115,16 @@ class CClientes:
             cursor.execute(sql, valores)
             cone.commit()
             print(cursor.rowcount,"Registro actualizado")
-            cone.close()
 
         except mysql.connector.Error as error:
             print("Error al actualizar en la base de datos {}".format(error))
+        finally:
+            if cone is not None:
+                cone.close();
 
     def eliminarClientes(id):
         # D = DELETE. Borra el cliente cuyo "id" coincida.
+        cone = None
         try:
             cone = CConnection.connectionBaseDeDatos()
             # PROTECCIÓN: mismas explicación que en mostrarClientes().
@@ -133,7 +140,10 @@ class CClientes:
             cursor.execute(sql, valores)
             cone.commit()
             print(cursor.rowcount,"Registro eliminado")
-            cone.close()
 
         except mysql.connector.Error as error:
             print("Error al eliminar en la base de datos {}".format(error))
+
+        finally:
+            if cone is not None:
+                cone.close()

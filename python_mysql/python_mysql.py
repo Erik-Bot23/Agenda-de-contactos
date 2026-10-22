@@ -23,21 +23,13 @@ class FormularioClientes:
     # NO se usa como objeto (nadie hace FormularioClientes()); solo sirve para
     # declarar los identificadores antes de usarlos en las funciones.
     # Lo común en Tkinter es hacer esto dentro de las funciones, no en una clase.
-    global win
     win = None
-    global groupBox
     groupBox = None
-    global textBoxId
     textBoxId = None
-    global textBoxNombres
     textBoxNombre = None
-    global textBoxApellidos
     textBoxApellidos = None
-    global combo
     combo = None
-    global textBoxTelefono
     textBoxTelefono = None
-    global tree
     tree = None
     # "None" significa "todavía no existe". Estas variables se van a llenar
     # cuando la función formulario() cree los widgets.
@@ -61,14 +53,21 @@ def actualizarTreeview():
         # 3) Insertar los datos en el treeview
         #    row es cada tupla como (id, nombres, apellidos, sexo).
         #    tree.insert("", "end", values=row) agrega una fila al final.
-        #    Nota: se llama a mostrarClientes() dos veces; basta guardarlo en
+        #    Nota: se llama a mostrarClientes(); basta guardarlo en
         #    "datos" e iterar sobre "datos".
-        for row in CClientes.mostrarClientes():
+        for row in datos:
             tree.insert("", "end", values=row)
 
     except ValueError as error:
         print("Error al actualizar la tabla {}".format(error))
 
+def escribir_en_entry(entry, valor):
+    #Cambia el texto de un Entry aunque esté en readonly
+    estado_original = entry.cget("state")
+    entry.config(state="normal") #Se desbloqua solo para escribir
+    entry.delete(0, END)
+    entry.insert(0, valor)
+    entry.config(state=estado_original) #vuelve a readonly
 
 def guardarRegistros():
     # Se ejecuta al presionar el botón "Guardar".
@@ -132,7 +131,7 @@ def modificarRegistros():
         actualizarTreeview()
 
         #Limpiamos las textBox
-        textBoxId.delete(0, END)
+        escribir_en_entry(textBoxId, "")
         textBoxNombres.delete(0, END)
         textBoxApellidos.delete(0, END)
         textBoxTelefono.delete(0, END)
@@ -143,7 +142,7 @@ def modificarRegistros():
 def eliminarRegistros():
     # Se ejecuta al presionar el botón "Eliminar".
     # Solo necesita el id; borra el registro de la BD (DELETE) y refresca.
-    global textBoxId, textBoxNombres, textBoxApellidos, texBoxTelefono
+    global textBoxId, textBoxNombres, textBoxApellidos, textBoxTelefono
 
     try:
         #verificar si los widgets estan inicializados
@@ -151,10 +150,23 @@ def eliminarRegistros():
             print("Los widgets no estan inicializados")
             return
 
-        # 1) Leer el id que el usuario dejó en el cuadro.
+        # Leer el id que el usuario dejó en el cuadro.
         idUsuario = textBoxId.get()
 
-        # 2) DELETE FROM usuarios WHERE id = idUsuario
+        # Si no hay id, no hay nada que borrar: avisar y salir
+        if idUsuario == "":
+            messagebox.showwarning("Aviso", "Selecciona un registro de la tabla para eliminar")
+            return
+
+        # Pedir confirmación. askyesno devuelve True o False
+        confirmar = messagebox.askyesno("Confirmar eliminación", "Seguro que quieres eliminar el registro con id {}?".format(idUsuario))
+
+        # Si el usuario dijo que no, cancelamos sin tocar la BD
+        if not confirmar:
+            messagebox.showinfo("Información", "Operación cancelada")
+            return
+
+        # DELETE FROM usuarios WHERE id = idUsuario. Llegamos aquí si el usuario confirmo.
         CClientes.eliminarClientes(idUsuario)
         messagebox.showinfo("Información", "Los datos se eliminaron correctamente")
 
@@ -162,7 +174,7 @@ def eliminarRegistros():
         actualizarTreeview()
 
         #Limpiamos las textBox
-        textBoxId.delete(0, END)
+        escribir_en_entry(textBoxId, "")
         textBoxNombres.delete(0, END)
         textBoxApellidos.delete(0, END)
         textBoxTelefono.delete(0, END)
@@ -187,8 +199,7 @@ def seleccionarRegistro(event):
 
             # 4) Copiar cada valor dentro de su Entry correspondiente.
             #    Primero se borra lo anterior y luego se inserta el nuevo.
-            textBoxId.delete(0, END)
-            textBoxId.insert(0, values[0])
+            escribir_en_entry(textBoxId, values[0])
             textBoxNombres.delete(0, END)
             textBoxNombres.insert(0, values[1])
             textBoxApellidos.delete(0, END)
@@ -196,7 +207,7 @@ def seleccionarRegistro(event):
             # 5) En el Combobox, .set() cambia el valor mostrado.
             combo.set(values[3])
             textBoxTelefono.delete(0, END)
-            textBoxTelefono.insert(0, [4])
+            textBoxTelefono.insert(0, values[4])
 
 
     except ValueError as error:
@@ -220,7 +231,7 @@ def formulario():
         #    Tk() crea la ventana raíz. Todo lo demás se coloca dentro de ella.
         win = Tk()
         #    Establece el tamaño de la ventana: 1250x300 (ancho x alto píxeles).
-        win.geometry("1250x300")
+        win.geometry("1350x420")
         #    Título que aparece en la barra de la ventana.
         win.title("Formulario de python")
 
@@ -238,7 +249,7 @@ def formulario():
         #    ignoraba la fuente. La forma correcta es ("arial", 12) en dos valores.
         labelId = Label(groupBox, text="Id", width=13,font=("arial", 12)).grid(row=0,column=0)
         # Entry = cuadro de texto de una sola línea. Aquí se guardará el id.
-        textBoxId = Entry(groupBox)
+        textBoxId = Entry(groupBox, state="readonly", readonlybackground="#f0f0f0",)
         textBoxId.grid(row=0, column=1)
 
         labelNombres = Label(groupBox, text="Nombres", width=13,font=("arial", 12)).grid(row=1,column=0)
@@ -278,22 +289,22 @@ def formulario():
         #    columns = los títulos de cada columna.
         #    show="headings" muestra solo los encabezados (sin la 1ª col. oculta).
         #    height=5 = número de filas visibles.
-        tree = ttk.Treeview(groupBox,columns=("Id","Nombres","Apellifos","Sexo","Telefono"),show="headings",height=5)
+        tree = ttk.Treeview(groupBox,columns=("Id","Nombres","Apellidos","Sexo","Telefono"),show="headings",height=8)
         #    Configurar cada columna: anchor=CENTER centra el texto.
         #    "# 1" se refiere a la primera columna, "# 2" a la segunda, etc.
-        tree.column("# 1", anchor=CENTER)
+        tree.column("# 1", anchor=CENTER, width=60, minwidth=50)
         tree.heading("# 1", text="Id")
-        tree.column("# 2", anchor=CENTER)
+        tree.column("# 2", anchor=CENTER, width=200, minwidth=150)
         tree.heading("# 2", text="Nombres")
-        tree.column("# 3", anchor=CENTER)
+        tree.column("# 3", anchor=CENTER, width=200, minwidth=150)
         tree.heading("# 3", text="Apellidos")
-        tree.column("# 4", anchor=CENTER)
+        tree.column("# 4", anchor=CENTER, width=120, minwidth=100)
         tree.heading("# 4", text="Sexo")
-        tree.column("# 5", anchor=CENTER)
+        tree.column("# 5", anchor=CENTER, width=150, minwidth=120)
         tree.heading("# 5", text="Telefono")
 
         tree.delete(*tree.get_children()) #Vaciar la tabla
-        datos = CClientes.modificarClientes() #Una sola conexión
+        datos = CClientes.mostrarClientes() #Una sola conexión
         # 5) Llenar la tabla con los datos que ya existen en la BD.
         for row in datos: #Iterar sobre lo ya guardado
             tree.insert("", "end", values=row)
@@ -303,7 +314,7 @@ def formulario():
         tree.bind("<<TreeviewSelect>>",seleccionarRegistro)
 
         # 7) pack() coloca el Treeview (se expande según el contenedor).
-        tree.pack()
+        tree.pack(fill="both", expand=True, padx=5, pady=5)
 
         # 8) mainloop() ARRANCA la aplicación: mantiene la ventana abierta y
         #    procesa los eventos (clics, teclas...) hasta que se cierre.

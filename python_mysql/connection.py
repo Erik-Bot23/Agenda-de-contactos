@@ -13,6 +13,7 @@ from dotenv import load_dotenv #Busca el archivo .env (desde donde ejecutes el p
 # crear cursores y ejecutar sentencias SQL desde código Python.
 
 class CConnection:
+    load_dotenv()
     # Clase contenedora de la conexión a la base de datos.
     # Se escribe "CConnection" siguiendo la convención del proyecto
     # (prefijo "C" = Clase, como CClientes).

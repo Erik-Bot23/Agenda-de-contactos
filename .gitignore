@@ -1,0 +1,17 @@
+#Credenciales:variables de entorno (nunca se suben)
+.env
+.env.*
+*.env
+
+#Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+#Sistema y editores
+.DS_Store
+Thumba.db
+.vscode/
+.idea/
